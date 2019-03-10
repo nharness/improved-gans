@@ -2,10 +2,12 @@ import tensorflow as tf
 from model import sigmoid_kl_with_logits
 from ops import variables_on_gpu0
 from ops import avg_grads
-from model import read_and_decode
+from model import read_and_decode_with_labels
 from model import get_vars
-IMSIZE = 512
-filename = '/home/nharness/idcgans/datasets/patents' + str(IMSIZE) + '.tfrecords'
+IMSIZE = 128
+filename = '/media/NAS_SHARED/imagenet/imagenet_train_labeled_' + str(IMSIZE) + '.tfrecords'
+
+
 def build_model(self):
     all_d_grads = []
     all_g_grads = []
@@ -33,7 +35,7 @@ def build_model_single_gpu(self, gpu_idx):
 
     if gpu_idx == 0:
         filename_queue = tf.train.string_input_producer([filename]) #  num_epochs=self.config.epoch)
-        self.get_image = read_and_decode(filename_queue)
+        self.get_image, self.get_label = read_and_decode_with_labels(filename_queue)
 
         with tf.variable_scope("misc"):
             chance = 1. # TODO: declare this down below and make it 1. - 1. / num_classes
@@ -44,7 +46,7 @@ def build_model_single_gpu(self, gpu_idx):
                     initializer=tf.constant_initializer(0.),
                     trainable=False)
 
-    images = tf.train.shuffle_batch([self.get_image],
+    images, sparse_labels = tf.train.shuffle_batch([self.get_image, self.get_label],
                     batch_size=self.batch_size,
                     num_threads=2,
                     capacity=1000 + 3 * self.batch_size,
@@ -58,7 +60,7 @@ def build_model_single_gpu(self, gpu_idx):
         self.reference_G, self.reference_zs = self.generator(is_ref=True)
         # Since I don't know how to turn variable reuse off, I can only activate it once.
         # So here I build a dummy copy of the discriminator before turning variable reuse on for the generator.
-        dummy_joint = tf.concat(0, [images.astype(uint8), self.reference_G])
+        dummy_joint = tf.concat(0, [images, self.reference_G])
         dummy = self.discriminator(dummy_joint, reuse=False, prefix="dummy")
 
     G, zs = self.generator(is_ref=False)
@@ -83,12 +85,12 @@ def build_model_single_gpu(self, gpu_idx):
     self.d__sum = tf.histogram_summary("d_", D_on_G)
     self.G_sum = tf.image_summary("G", G)
 
-#    d_label_smooth = self.d_label_smooth
-#    d_loss_real = sigmoid_kl_with_logits(D_on_data_logits, 1. - d_label_smooth)
-#    class_loss_weight = 1.
-#    d_loss_class = class_loss_weight * tf.nn.sparse_softmax_cross_entropy_with_logits(class_logits,
-#            tf.to_int64(sparse_labels))
-#    error_rate = 1. - tf.reduce_mean(tf.to_float(tf.nn.in_top_k(class_logits, sparse_labels, 1)))
+    d_label_smooth = self.d_label_smooth
+    d_loss_real = sigmoid_kl_with_logits(D_on_data_logits, 1. - d_label_smooth)
+    class_loss_weight = 1.
+    d_loss_class = class_loss_weight * tf.nn.sparse_softmax_cross_entropy_with_logits(class_logits,
+            tf.to_int64(sparse_labels))
+    error_rate = 1. - tf.reduce_mean(tf.to_float(tf.nn.in_top_k(class_logits, sparse_labels, 1)))
     # self.d_loss_class = tf.Print(self.d_loss_class, [error_rate], "gpu " + str(gpu_idx) + " current minibatch error rate")
     if gpu_idx == 0:
         update = tf.assign(num_error_rate, num_error_rate + 1.)
@@ -110,7 +112,7 @@ def build_model_single_gpu(self, gpu_idx):
     d_loss_fake = tf.nn.sigmoid_cross_entropy_with_logits(D_on_G_logits,
             tf.zeros_like(D_on_G_logits))
     g_loss = sigmoid_kl_with_logits(D_on_G_logits, self.generator_target_prob)
- #   d_loss_class = tf.reduce_mean(d_loss_class)
+    d_loss_class = tf.reduce_mean(d_loss_class)
     d_loss_real = tf.reduce_mean(d_loss_real)
     d_loss_fake = tf.reduce_mean(d_loss_fake)
     g_loss = tf.reduce_mean(g_loss)
@@ -118,15 +120,15 @@ def build_model_single_gpu(self, gpu_idx):
         self.g_losses = []
     self.g_losses.append(g_loss)
 
-    d_loss = d_loss_real + d_loss_fake
+    d_loss = d_loss_real + d_loss_fake + d_loss_class
     if gpu_idx == 0:
         self.d_loss_reals = []
         self.d_loss_fakes = []
-#        self.d_loss_classes = []
+        self.d_loss_classes = []
         self.d_losses = []
     self.d_loss_reals.append(d_loss_real)
     self.d_loss_fakes.append(d_loss_fake)
-#    self.d_loss_classes.append(d_loss_class)
+    self.d_loss_classes.append(d_loss_class)
     self.d_losses.append(d_loss)
 
     # self.g_loss_sum = tf.scalar_summary("g_loss", self.g_loss)

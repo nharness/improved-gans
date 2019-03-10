@@ -183,7 +183,7 @@ def visualize(sess, dcgan, config, option):
             counter += 1
   elif option == 1:
     values = np.arange(0, 1, 1./config.batch_size)
-    for idx in range(100):
+    for idx in xrange(100):
       print(" [*] %d" % idx)
       z_sample = np.zeros([config.batch_size, dcgan.z_dim])
       for kdx, z in enumerate(z_sample):
@@ -193,7 +193,7 @@ def visualize(sess, dcgan, config, option):
       save_images(samples, [8, 8], './' + options.sample_dir + '/test_arange_%s.png' % (idx))
   elif option == 2:
     values = np.arange(0, 1, 1./config.batch_size)
-    for idx in [random.randint(0, 99) for _ in range(100)]:
+    for idx in [random.randint(0, 99) for _ in xrange(100)]:
       print(" [*] %d" % idx)
 
       if hasattr(dcgan, z):
@@ -211,7 +211,7 @@ def visualize(sess, dcgan, config, option):
       make_gif(samples, './' + config.sample_dir + '/test_gif_%s.gif' % (idx))
   elif option == 3:
     values = np.arange(0, 1, 1./config.batch_size)
-    for idx in range(100):
+    for idx in xrange(100):
       print(" [*] %d" % idx)
       z_sample = np.zeros([config.batch_size, dcgan.z_dim])
       for kdx, z in enumerate(z_sample):
@@ -223,7 +223,7 @@ def visualize(sess, dcgan, config, option):
     image_set = []
     values = np.arange(0, 1, 1./config.batch_size)
 
-    for idx in range(100):
+    for idx in xrange(100):
       print(" [*] %d" % idx)
       z_sample = np.zeros([config.batch_size, dcgan.z_dim])
       for kdx, z in enumerate(z_sample): z[idx] = values[kdx]

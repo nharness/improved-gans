@@ -44,8 +44,8 @@ class DCGAN(object):
         self.disable_vbn = disable_vbn
         self.devices = devices
         self.d_label_smooth = d_label_smooth
-        self.out_init_b = out_init_b
-        self.out_stddev = out_stddev
+	self.out_init_b = out_init_b
+	self.out_stddev = out_stddev
         self.config = config
         self.generator_target_prob = generator_target_prob
         if generator is not None:
@@ -226,7 +226,7 @@ class DCGAN(object):
             self.saver.restore(self.sess, os.path.join(checkpoint_dir, ckpt_name))
             return True
         else:
-            print("Bad checkpoint: ", ckpt)
+            print "Bad checkpoint: ", ckpt
             return False
 
 
@@ -325,25 +325,25 @@ def read_and_decode(filename_queue):
 
     return image
 
-def read_and_decode(filename_queue):
+def read_and_decode_with_labels(filename_queue):
     reader = tf.TFRecordReader()
     _, serialized_example = reader.read(filename_queue)
     features = tf.parse_single_example(
             serialized_example,
             features={
                 'image_raw': tf.FixedLenFeature([], tf.string),
-#                'label' : tf.FixedLenFeature([], tf.int64)
+                'label' : tf.FixedLenFeature([], tf.int64)
             })
 
     image = tf.decode_raw(features['image_raw'], tf.uint8)
-    image.set_shape(512 * 512 * 1)
-    image = tf.reshape(image, [512, 512, 1])
+    image.set_shape(128 * 128 * 3)
+    image = tf.reshape(image, [128, 128, 3])
 
-#    image = tf.cast(image, tf.float32) * (2. / 255) - 1.
+    image = tf.cast(image, tf.float32) * (2. / 255) - 1.
 
-#    label = tf.cast(features['label'], tf.int32)
+    label = tf.cast(features['label'], tf.int32)
 
-    return image
+    return image, label
 
 
 def sigmoid_kl_with_logits(logits, targets):
