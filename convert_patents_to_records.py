@@ -21,7 +21,7 @@ def _bytes_feature(value):
     return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
 
 def main(argv):
-    pattern = "/scratch/nharness/:ibrary/RAW/*TIF"
+    pattern = "/scratch/nharness/Library/RAW/*TIF"
     files = glob(pattern)
     assert len(files) > 0
     assert len(files) < 1000000, len(files)
