@@ -120,7 +120,7 @@ class Generator(object):
         zs.append(h3z)
         h3 = tf.concat(3, [h3, h3z])
 
-        assert dcgan.image_shape[0] == 128
+        assert dcgan.image_shape[0] == 512
 
         h4 = reuse_wrapper(deconv2d(h3,
                 [dcgan.batch_size, 64, 64, dcgan.gf_dim*1],

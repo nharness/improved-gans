@@ -40,7 +40,7 @@ def discriminator(self, image, reuse=False, y=None, prefix=""):
     diff_feat = self.bnx(diff_feat, name="d_bnx_diff_feat")
     """
 
-    noisy_image = image + tf.random_normal([batch_size, 128, 128, 3],
+    noisy_image = image + tf.random_normal([batch_size, 512, 512, 3],
             mean=0.0,
             stddev=.1)
 

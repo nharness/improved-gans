@@ -6,7 +6,7 @@ import tensorflow as tf
 from ops import *
 from utils import *
 
-filename = "/media/NAS_SHARED/imagenet/imagenet_train_128.tfrecords"
+filename = "/home/nharness/icdgans/datasets/patents512.tfrecords"
 
 class DCGAN(object):
     def __init__(self, sess, image_size=108, is_crop=True,
@@ -318,8 +318,8 @@ def read_and_decode(filename_queue):
             })
 
     image = tf.decode_raw(features['image_raw'], tf.uint8)
-    image.set_shape(128 * 128 * 3)
-    image = tf.reshape(image, [128, 128, 3])
+    image.set_shape(512 * 512 * 3)
+    image = tf.reshape(image, [512, 512, 3])
 
     image = tf.cast(image, tf.float32) * (2. / 255) - 1.
 
@@ -336,8 +336,8 @@ def read_and_decode_with_labels(filename_queue):
             })
 
     image = tf.decode_raw(features['image_raw'], tf.uint8)
-    image.set_shape(128 * 128 * 3)
-    image = tf.reshape(image, [128, 128, 3])
+    image.set_shape(512 * 512 * 1)
+    image = tf.reshape(image, [512, 512, 1])
 
     image = tf.cast(image, tf.float32) * (2. / 255) - 1.
 

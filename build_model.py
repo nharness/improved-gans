@@ -4,8 +4,8 @@ from ops import variables_on_gpu0
 from ops import avg_grads
 from model import read_and_decode_with_labels
 from model import get_vars
-IMSIZE = 128
-filename = '/media/NAS_SHARED/imagenet/imagenet_train_labeled_' + str(IMSIZE) + '.tfrecords'
+IMSIZE = 512
+filename = '/home/nharness/idcgans/datasets/patents' + str(IMSIZE) + '.tfrecords'
 
 
 def build_model(self):
