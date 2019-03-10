@@ -42,7 +42,7 @@ def main(argv):
         # from pylearn2.utils.image import save
         # save('foo.png', (image + 1.) / 2.)
         image_raw = image.tostring()
-        label = str_to_int['patent']
+        label = 0
         if i % 1 == 0:
             print i, '\t',label
         example = tf.train.Example(features=tf.train.Features(feature={
