@@ -139,7 +139,7 @@ class Generator(object):
         h4 = tf.concat(3, [h4, h4z])
 
         h5 = reuse_wrapper(deconv2d(h4,
-                [dcgan.batch_size, 128, 128, dcgan.gf_dim * 1],
+                [dcgan.batch_size, 512, 512, dcgan.gf_dim * 1],
                 name='g_h5', with_w=make_vars),
             'h5_w', 'h5_b')
         h5 = tf.nn.relu(dcgan.vbn(h5, "g_vbn_5"))
@@ -148,14 +148,14 @@ class Generator(object):
         sixteenth = dcgan.gf_dim // 16
         if sixteenth == 0:
             sixteenth = 1
-        h5z = make_z([dcgan.batch_size, 128, 128, eighth],
+        h5z = make_z([dcgan.batch_size, 512, 512, eighth],
                                    minval=-1., maxval=1.,
                                    name='h5z', dtype=tf.float32)
         zs.append(h5z)
         h5 = tf.concat(3, [h5, h5z])
 
         h6 = reuse_wrapper(deconv2d(h5,
-                [dcgan.batch_size, 128, 128, 3],
+                [dcgan.batch_size, 512, 512, 3],
                 d_w = 1, d_h = 1,
                 name='g_h6', with_w=make_vars,
                 init_bias=dcgan.out_init_b,
