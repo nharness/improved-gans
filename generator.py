@@ -68,19 +68,19 @@ class Generator(object):
         # project `z` and reshape
         z_ = reuse_wrapper(linear(z, dcgan.gf_dim*8*4*4, 'g_h0_lin', with_w=make_vars), 'h0_w', 'h0_b')
 
-        h0 = tf.reshape(z_, [-1, 4, 4, dcgan.gf_dim * 8])
+        h0 = tf.reshape(z_, [-1, 32, 32, dcgan.gf_dim * 8])
         h0 = tf.nn.relu(dcgan.vbn(h0, "g_vbn_0"))
-        h0z = make_z([dcgan.batch_size, 4, 4, dcgan.gf_dim],
+        h0z = make_z([dcgan.batch_size, 16, 16, dcgan.gf_dim],
                                    minval=-1., maxval=1.,
                                    name='h0z', dtype=tf.float32)
         zs.append(h0z)
         h0 = tf.concat(3, [h0, h0z])
 
         h1 = reuse_wrapper(deconv2d(h0,
-            [dcgan.batch_size, 8, 8, dcgan.gf_dim*4], name='g_h1', with_w=make_vars),
+            [dcgan.batch_size, 32, 32, dcgan.gf_dim*4], name='g_h1', with_w=make_vars),
             'h1_w', 'h1_b')
         h1 = tf.nn.relu(dcgan.vbn(h1, "g_vbn_1"))
-        h1z = make_z([dcgan.batch_size, 8, 8, dcgan.gf_dim],
+        h1z = make_z([dcgan.batch_size, 32, 32, dcgan.gf_dim],
                                    minval=-1., maxval=1.,
                                    name='h1z', dtype=tf.float32)
         zs.append(h1z)
@@ -88,13 +88,13 @@ class Generator(object):
 
 
         h2 = reuse_wrapper(deconv2d(h1,
-            [dcgan.batch_size, 16, 16, dcgan.gf_dim*2], name='g_h2', with_w=make_vars),
+            [dcgan.batch_size, 64, 64, dcgan.gf_dim*2], name='g_h2', with_w=make_vars),
             'h2_w', 'h2_b')
         h2 = tf.nn.relu(dcgan.vbn(h2, "g_vbn_2"))
         half = dcgan.gf_dim // 2
         if half == 0:
             half = 1
-        h2z = make_z([dcgan.batch_size, 16, 16, half],
+        h2z = make_z([dcgan.batch_size, 64, 64, half],
                                    minval=-1., maxval=1.,
                                    name='h2z', dtype=tf.float32)
         zs.append(h2z)
@@ -102,7 +102,7 @@ class Generator(object):
 
 
         h3 = reuse_wrapper(deconv2d(h2,
-            [dcgan.batch_size, 32, 32, dcgan.gf_dim*1], name='g_h3', with_w=make_vars),
+            [dcgan.batch_size, 128, 128, dcgan.gf_dim*1], name='g_h3', with_w=make_vars),
             'h3_w', 'h3_b')
         if make_vars:
             h3_name = "h3_relu_first"
@@ -114,7 +114,7 @@ class Generator(object):
         quarter = dcgan.gf_dim // 4
         if quarter == 0:
             quarter = 1
-        h3z = make_z([dcgan.batch_size, 32, 32, quarter],
+        h3z = make_z([dcgan.batch_size, 128, 128, quarter],
                                    minval=-1., maxval=1.,
                                    name='h3z', dtype=tf.float32)
         zs.append(h3z)
