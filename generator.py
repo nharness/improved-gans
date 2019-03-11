@@ -155,7 +155,7 @@ class Generator(object):
         h5 = tf.concat(3, [h5, h5z])
 
         h6 = reuse_wrapper(deconv2d(h5,
-                [dcgan.batch_size, 512, 512, 3],
+                [dcgan.batch_size, 512, 512, 1],
                 d_w = 1, d_h = 1,
                 name='g_h6', with_w=make_vars,
                 init_bias=dcgan.out_init_b,
