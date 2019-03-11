@@ -123,7 +123,7 @@ class Generator(object):
         assert dcgan.image_shape[0] == 512
 
         h4 = reuse_wrapper(deconv2d(h3,
-                [dcgan.batch_size, 64, 64, dcgan.gf_dim*1],
+                [dcgan.batch_size, 256, 256, dcgan.gf_dim*1],
                 name='g_h4', with_w=make_vars),
             'h4_w', 'h4_b')
         h4 = tf.nn.relu(dcgan.vbn(h4, "g_vbn_4"))
@@ -132,7 +132,7 @@ class Generator(object):
         eighth = dcgan.gf_dim // 8
         if eighth == 0:
             eighth = 1
-        h4z = make_z([dcgan.batch_size, 64, 64, eighth],
+        h4z = make_z([dcgan.batch_size, 256, 256, eighth],
                                    minval=-1., maxval=1.,
                                    name='h4z', dtype=tf.float32)
         zs.append(h4z)
